@@ -1,6 +1,7 @@
-function [GeneExpData,sectionDatasetInfo,geneInfo,structInfo] = ImportAllenToMatlab()
+function [geneExpData,sectionDatasetInfo,geneInfo,structInfo] = ImportAllenToMatlab()
 % ------------------------------------------------------------------------------
-% Import the .csv files obtained from python scripts querying the Allen API
+% Import the .csv files obtained from python scripts querying the Allen API:
+% --AllGenes.py
 % --RetrieveGene.py
 %-------------------------------------------------------------------------------
 
@@ -9,11 +10,11 @@ doPlot = false;
 
 % Layer-specific expression:
 fileNames = struct();
-fileNames.struct = 'structureInfoLayers.csv';
-fileNames.sectionDatasets = 'sectionDatasetInfo.csv';
+fileNames.struct = 'structureInfoAdra.csv';
+fileNames.sectionDatasets = 'sectionDatasetInfo.csv'; % 'sectionDatasetInfo.csv'
 fileNames.geneInfo = 'geneInfo.csv';
-fileNames.energy = 'expression_energy_204x280.csv';
-fileNames.density = 'expression_density_204x280.csv';
+fileNames.energy = 'expression_energy_199x17.csv';
+fileNames.density = 'expression_density_199x17.csv';
 fileNames.columns = 'dataSetIDs_Columns.csv';
 % fileNames.struct = 'structureInfo.csv';
 % fileNames.sectionDatasets = 'sectionDatasetInfo.csv';
@@ -33,7 +34,7 @@ numInfo = size(structInfo,2); % variables for each structure
 load('Mouse_Connectivity_Data.mat','regionAcronyms','MajorRegionLabels')
 % Match and add to the table:
 [~,~,match_ix] = intersect(structInfo.acronym,regionAcronyms,'stable');
-if length(match_ix)==numStructures
+if length(match_ix)==numStructures && exist('MajorRegionLabels','var')
     % All matched:
     structInfo.divisionLabel = MajorRegionLabels(match_ix);
 else
@@ -70,12 +71,12 @@ fprintf(1,'Added Cahoy et al. cell types for each gene\n');
 %-------------------------------------------------------------------------------
 fprintf(1,'Reading from %s and %s\n',fileNames.energy,fileNames.density);
 theFields = {'energy','density'};
-GeneExpData = struct();
+geneExpData = struct();
 structureIDs = struct();
 dataSetIDs = struct();
 for k = 1:2
-    GeneExpData.(theFields{k}) = dlmread(fileNames.(theFields{k}),',',1,1);
-    [numStructuresRead,numDatasetsRead] = size(GeneExpData.(theFields{k}));
+    geneExpData.(theFields{k}) = dlmread(fileNames.(theFields{k}),',',1,1);
+    [numStructuresRead,numDatasetsRead] = size(geneExpData.(theFields{k}));
     structureIDs.(theFields{k}) = dlmread(fileNames.(theFields{k}),',',[1,0,numStructuresRead,0]);
     dataSetIDs.(theFields{k}) = dlmread(fileNames.(theFields{k}),',',[0,1,0,numDatasetsRead]);
 end
@@ -124,17 +125,17 @@ numGenes = length(allEntrezIDs);
 fprintf(1,'We have %u genes across %u section datasets\n',...
                 length(allEntrezIDs),height(sectionDatasetInfo));
 % Let's take the mean across repeated measures
-GeneExpData.gene_energy = zeros(numStructures,numGenes);
-GeneExpData.gene_density = zeros(numStructures,numGenes);
+geneExpData.gene_energy = zeros(numStructures,numGenes);
+geneExpData.gene_density = zeros(numStructures,numGenes);
 didMean = false(numGenes,1);
 for i = 1:numGenes
     isG = (sectionDatasetInfo.entrez_id == allEntrezIDs(i));
     if sum(isG)==1
-        GeneExpData.gene_energy(:,i) = GeneExpData.energy(:,isG);
-        GeneExpData.gene_density(:,i) = GeneExpData.density(:,isG);
+        geneExpData.gene_energy(:,i) = geneExpData.energy(:,isG);
+        geneExpData.gene_density(:,i) = geneExpData.density(:,isG);
     else
-        GeneExpData.gene_energy(:,i) = nanmean(GeneExpData.energy(:,isG),2);
-        GeneExpData.gene_density(:,i) = nanmean(GeneExpData.density(:,isG),2);
+        geneExpData.gene_energy(:,i) = nanmean(geneExpData.energy(:,isG),2);
+        geneExpData.gene_density(:,i) = nanmean(geneExpData.density(:,isG),2);
         didMean(i) = true;
     end
 end
@@ -161,15 +162,15 @@ if numStructures==213
     end
     % Now reorder to match the connectivity ordering:
     structInfo = structInfo(ib,:);
-    GeneExpData.gene_energy = GeneExpData.gene_energy(ib,:);
-    GeneExpData.gene_density = GeneExpData.gene_density(ib,:);
-    GeneExpData.energy = GeneExpData.energy(ib,:);
-    GeneExpData.density = GeneExpData.density(ib,:);
+    geneExpData.gene_energy = geneExpData.gene_energy(ib,:);
+    geneExpData.gene_density = geneExpData.gene_density(ib,:);
+    geneExpData.energy = geneExpData.energy(ib,:);
+    geneExpData.density = geneExpData.density(ib,:);
 end
 
 %-------------------------------------------------------------------------------
 % Save
 %-------------------------------------------------------------------------------
 fileNames.output = sprintf('AllenGeneDataset_%u.mat',numGenes);
-save(fileNames.output,'GeneExpData','sectionDatasetInfo','geneInfo','structInfo');
+save(fileNames.output,'geneExpData','sectionDatasetInfo','geneInfo','structInfo');
 fprintf(1,'Saved %s\n',fileNames.output);
