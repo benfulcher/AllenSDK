@@ -28,11 +28,11 @@ Input files:
 
 ### Preparing outputs
 
-Output files (specified filename):
+Output files (specified filenames):
 * `structInfoFilename`: saves retrieved information for the structure IDs specified
 * `allDataFilename`: saves detailed expression information out to this file
 
-Output files (generated filename):
+Output files (generated filenames):
 * `expression_energy_AxB`: expression energy values for the A structures and B section datasets
 * `expression_density_AxB`: expression density values for the A structure and B section datasets
 * `dataSetIDs_Columns.csv`: dataset IDs representing each column in the above matrices

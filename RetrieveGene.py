@@ -172,7 +172,7 @@ def GetStructureDetails(structureIDs,filterFields,graph_id=1):
     #         structHash[parentId]['num_children'] += 1
 
 
-def main():
+# def main():
     # Download and save all of the data to file:
 
 # INPUT file names:
@@ -299,4 +299,4 @@ dataSetIDs.to_csv('dataSetIDs_Columns.csv', index=False, header=False)
     # gdf = gb.agg({'data_set_id': pd.Series.nunique})
     # print(gdf)
 
-if __name__ == "__main__": main()
+# if __name__ == "__main__": main()
