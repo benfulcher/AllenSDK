@@ -5,7 +5,6 @@ import numpy as np
 import time
 import csv # For saving string data to csv
 
-#-------------------------------------------------------------------------------
 # Globals:
 #-------------------------------------------------------------------------------
 # graph_id = 1 is the "Mouse Brain Atlas"
@@ -65,7 +64,6 @@ def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced=False,writeOut=
                 optionsString=optionsString,writeOut=writeOut)
 
     return expressionData
-
 def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut=False):
     # Send a query to the Allen API, and assemble results
 
@@ -109,7 +107,6 @@ def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut
             print("Wrote to %s" % json_file_name)
 
     return rows
-
 def unionizes_to_dataframe(unionizes):
     fdata = []
     for unionize in unionizes:
@@ -124,16 +121,10 @@ def unionizes_to_dataframe(unionizes):
             # 'gene_entrez': unionize['section_data_set']['genes'][0]['entrez_id'],
         })
     return pd.DataFrame.from_records(fdata)
-
 def SaveListCSV(stringList,fileName):
     resultFile = open(fileName,'wb')
     wr = csv.writer(resultFile, dialect='excel')
     wr.writerow(stringList)
-
-# def GetGeneDetails(entrezIDs,filterFields,graph_id=1):
-#
-#     [organism_id$eq2][reference_genome_id$eq486545752]
-
 def GetStructureDetails(structureIDs,filterFields,graph_id=1):
     # Get structure info for structureIDs given from Allen API
     # (mouse brain atlas)
@@ -172,16 +163,13 @@ def GetStructureDetails(structureIDs,filterFields,graph_id=1):
     #         structHash[parentId]['num_children'] += 1
 
 
-# def main():
-    # Download and save all of the data to file:
-
 # INPUT file names:
-structIDSource = 'ValerioStructIDs.csv' # 'layerIDs.csv' # 'structureIDs.csv'
-entrezSource = 'ValerioEntrezIDs.csv' # 'geneEntrezID.csv'
+structIDSource = 'structIDs_palomero.csv' # 'layerIDs.csv' # 'structureIDs.csv'
+entrezSource = 'entrezIDs_palomero.csv' # 'geneEntrezID.csv'
 
 # OUTPUT file names:
-structInfoFilename = 'structureInfoAdra.csv' # structureInfo.csv
-allDataFilename = 'bigDataFrameAdra.csv'
+structInfoFilename = 'structureInfo_Palomero.csv' # structureInfo.csv
+allDataFilename = 'bigDataFrame_Palomero.csv'
 
 #---------------------------------------------------------------------------
 # Read in structure IDs from csv -> save detailed structure info to file

@@ -8,13 +8,16 @@ function [geneExpData,sectionDatasetInfo,geneInfo,structInfo] = ImportAllenToMat
 % Plot results to figures:
 doPlot = false;
 
+% Add division labels (for mapping regions to those in Oh et al.)
+addDivisionLabels = false;
+
 % Layer-specific expression:
 fileNames = struct();
-fileNames.struct = 'structureInfoAdra.csv';
+fileNames.struct = 'structureInfo_Palomero.csv';
 fileNames.sectionDatasets = 'sectionDatasetInfo.csv'; % 'sectionDatasetInfo.csv'
 fileNames.geneInfo = 'geneInfo.csv';
-fileNames.energy = 'expression_energy_199x51.csv';
-fileNames.density = 'expression_density_199x51.csv';
+fileNames.energy = 'expression_energy_10x73.csv';
+fileNames.density = 'expression_density_10x73.csv';
 fileNames.columns = 'dataSetIDs_Columns.csv';
 % fileNames.struct = 'structureInfo.csv';
 % fileNames.sectionDatasets = 'sectionDatasetInfo.csv';
@@ -30,15 +33,18 @@ fprintf(1,'Working with structures (from %s)...\n',fileNames.struct);
 structInfo = ImportStructures(fileNames.struct);
 numStructures = size(structInfo,1);
 numInfo = size(structInfo,2); % variables for each structure
+
 % Import major region labels assigned by Oh et al.:
-load('Mouse_Connectivity_Data.mat','regionAcronyms','MajorRegionLabels')
-% Match and add to the table:
-[~,~,match_ix] = intersect(structInfo.acronym,regionAcronyms,'stable');
-if length(match_ix)==numStructures && exist('MajorRegionLabels','var')
-    % All matched:
-    structInfo.divisionLabel = MajorRegionLabels(match_ix);
-else
-    warning('Could not match regions to Oh et al. major region labels')
+if addDivisionLabels
+    load('Mouse_Connectivity_Data.mat','regionAcronyms','MajorRegionLabels')
+    % Match and add to the table:
+    [~,~,match_ix] = intersect(structInfo.acronym,regionAcronyms,'stable');
+    if length(match_ix)==numStructures && exist('MajorRegionLabels','var')
+        % All matched:
+        structInfo.divisionLabel = MajorRegionLabels(match_ix);
+    else
+        warning('Could not match regions to Oh et al. major region labels')
+    end
 end
 
 % ------------------------------------------------------------------------------

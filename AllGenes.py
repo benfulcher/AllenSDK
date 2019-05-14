@@ -6,7 +6,6 @@ import csv # For saving string data to csv
 
 #-------------------------------------------------------------------------------
 ## Set filenames to output to:
-# json_file_name = 'allGenes.json'
 json_file_name = 'allSections.json'
 sectionDatasetFilename = 'sectionDatasetInfo.csv'
 geneInfoFilename = 'geneInfo.csv'
@@ -19,7 +18,6 @@ def GetAllSections():
     rows = QueryAPI(model='SectionDataSet',criteriaString=criteria,
                     includeString='genes',optionsString='[only$eq''genes.entrez_id,data_sets.id'']')
     return rows
-
 #-------------------------------------------------------------------------------
 def QueryAPI(model,criteriaString,includeString="",optionsString="",writeOut=[]):
     # Initiate RMA API for Allen data retrieval
@@ -64,13 +62,11 @@ def QueryAPI(model,criteriaString,includeString="",optionsString="",writeOut=[])
             print "Wrote to %s" % json_file_name
 
     return rows
-
 #-------------------------------------------------------------------------------
 def GetAllGenes():
     criteria = "[organism_id$eq2][reference_genome_id$eq486545752]"
     rows = QueryAPI(model='Gene',criteriaString=criteria)
     return rows
-
 #-------------------------------------------------------------------------------
 def to_dataframe_genes(genes):
     fdata = []
@@ -81,7 +77,6 @@ def to_dataframe_genes(genes):
             'entrez_id': gene['entrez_id'],
         })
     return pd.DataFrame.from_records(fdata)
-
 #-------------------------------------------------------------------------------
 def sections_to_list(sections):
     # Given a list of sections, returns a list of entrez ids contained in those
@@ -93,7 +88,6 @@ def sections_to_list(sections):
                 entrezList.append(section['genes'][0]['entrez_id'])
     entrezList.sort()
     return entrezList
-
 def save_sections_csv(sections):
     # Given a list of sections, saves info about genes as csv, for reading in
     # to Matlab
@@ -134,7 +128,6 @@ def save_sections_csv(sections):
     print "Genes filtered from %u to %u" % (numGenesFull, numGenesFiltered)
     # Save as a .csv file:
     df_genes.to_csv(geneInfoFilename)
-
 #-------------------------------------------------------------------------------
 def SaveListCSV(stringList,fileName):
     # Outputs a csv from a given list of strings
@@ -144,27 +137,24 @@ def SaveListCSV(stringList,fileName):
 
 #-------------------------------------------------------------------------------
 
-def main():
-    # Download and save all of the gene data to file:
-    sections = GetAllSections()
+# Download and save all of the gene data to file:
+sections = GetAllSections()
 
-    # Save section data to csv:
-    save_sections_csv(sections)
+# Save section data to csv:
+save_sections_csv(sections)
 
-    # Get unique entrez IDs (better to get output from save_sections_csv, but whatever)
-    geneEntrezList = sections_to_list(sections)
-    entrezSet = set(geneEntrezList)
-    geneEntrezList = list(entrezSet)
-    geneEntrezList.sort()
-    print "There are %u unique genes in section datasets" % len(entrezSet)
-    SaveListCSV(list(entrezSet),entrezIDFilename)
+# Get unique entrez IDs (better to get output from save_sections_csv, but whatever)
+geneEntrezList = sections_to_list(sections)
+entrezSet = set(geneEntrezList)
+geneEntrezList = list(entrezSet)
+geneEntrezList.sort()
+print "There are %u unique genes in section datasets" % len(entrezSet)
+SaveListCSV(list(entrezSet),entrezIDFilename)
 
-    # genes = GetAllGenes()
-    # df = df.sort('entrez_id')
-    # df.entrez_id.unique
-    # df = to_dataframe(genes)
-    # df = df.sort('entrez_id')
-    # df.entrez_id.unique
-    # gb = df.groupby('structure_id')
-
-if __name__ == "__main__": main()
+# genes = GetAllGenes()
+# df = df.sort('entrez_id')
+# df.entrez_id.unique
+# df = to_dataframe(genes)
+# df = df.sort('entrez_id')
+# df.entrez_id.unique
+# gb = df.groupby('structure_id')

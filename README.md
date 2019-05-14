@@ -1,14 +1,16 @@
 # AllenSDK
 
-Requires Matlab, python, and the AllenSDK, [install here](http://alleninstitute.github.io/AllenSDK/install.html).
+Requires Matlab and python.
+The [AllenSDK package](http://alleninstitute.github.io/AllenSDK/install.html) for python must be installed.
 
-Questions: ben.d.fulcher@gmail.com
+Please send questions by raising an Issue, or [sending me an email](mailto:ben.d.fulcher@gmail.com)
 Twitter: @bendfulcher
 
 ## Getting a region-by-gene matrix
 
 ### Getting full gene information first
 This is kind of badly worked up, where you first need to get a full list of genes, by running `AllGenes.py`.
+
 This gives you generic information:
 * `geneInfo.csv`
 * `geneEntrezID.csv`
@@ -16,7 +18,7 @@ This gives you generic information:
 ### Preparing inputs
 
 The basic workflow is:
-1. Get all structure IDs (kind of cheat by doing this from Matlab, `WriteStructureIDs.m`) -> `structIDs_Oh.csv` and `structInfo_Oh.csv`
+1. Get all structure IDs using `WriteStructureInfo.py` (kind of cheat by doing this from Matlab, `WriteStructureIDs.m` -> `structIDs_Oh.csv` and `structInfo_Oh.csv`)
 2. Get all gene entrez IDs, e.g., `AllGenes.py` -> `allGenes.csv`
 3. Run `RetrieveGene.py` and retrieve the combinations from Allen API
 
