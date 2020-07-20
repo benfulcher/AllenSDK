@@ -1,10 +1,17 @@
 # AllenSDK
 
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/bendfulcher.svg?style=social&label=Follow%20%40bendfulcher)](https://twitter.com/bendfulcher)
+
+This repository contains code for:
+1. Retrieving gene-expression data from the AllenSDK; and
+2. processing it into nice structures for further analysis in Matlab.
+
 Requires Matlab and python.
 The [AllenSDK package](http://alleninstitute.github.io/AllenSDK/install.html) for python must be installed.
 
-Please send questions by raising an Issue, or [sending me an email](mailto:ben.d.fulcher@gmail.com)
-Twitter: @bendfulcher
+Please send questions by raising an Issue, or [sending me an email](mailto:ben.d.fulcher@gmail.com).
+
+This pipeline is based on code developed for [Fulcher and Fornito, _PNAS_ (2016)](https://doi.org/10.1073/pnas.1513302113), and used for [Fulcher et al., _PNAS_ (2019)](https://doi.org/10.1073/pnas.1814144116).
 
 ## Getting a region-by-gene matrix
 
