@@ -1,5 +1,6 @@
 # AllenSDK
 
+[![DOI](https://zenodo.org/badge/104984017.svg)](https://zenodo.org/badge/latestdoi/104984017)
 [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/bendfulcher.svg?style=social&label=Follow%20%40bendfulcher)](https://twitter.com/bendfulcher)
 
 This repository contains code for:
@@ -9,9 +10,10 @@ This repository contains code for:
 Requires Matlab and python.
 The [AllenSDK package](http://alleninstitute.github.io/AllenSDK/install.html) for python must be installed.
 
-Please send questions by raising an Issue, or [sending me an email](mailto:ben.d.fulcher@gmail.com).
+If anything is unclear or needs improvement, please send questions by [raising an Issue](https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue) or [sending me an email](mailto:ben.d.fulcher@gmail.com).
 
 This pipeline is based on code developed for [Fulcher and Fornito, _PNAS_ (2016)](https://doi.org/10.1073/pnas.1513302113), and used for [Fulcher et al., _PNAS_ (2019)](https://doi.org/10.1073/pnas.1814144116).
+If you find this code useful, consider citing these papers if relevant to your work, or you can cite this code directly using its [DOI](https://doi.org/10.5281/zenodo.3951756).
 
 ## Getting a region-by-gene matrix
 
