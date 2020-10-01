@@ -78,7 +78,7 @@ def to_dataframe_genes(genes):
         })
     return pd.DataFrame.from_records(fdata)
 #-------------------------------------------------------------------------------
-def sections_to_list(sections):
+def SectionsToList(sections):
     # Given a list of sections, returns a list of entrez ids contained in those
     # section datasets
     entrezList = []
@@ -88,7 +88,8 @@ def sections_to_list(sections):
                 entrezList.append(section['genes'][0]['entrez_id'])
     entrezList.sort()
     return entrezList
-def save_sections_csv(sections):
+#-------------------------------------------------------------------------------
+def SaveSectionsToCSV(sections):
     # Given a list of sections, saves info about genes as csv, for reading in
     # to Matlab
 
@@ -106,6 +107,7 @@ def save_sections_csv(sections):
     # To dataframe:
     df_sections = pd.DataFrame.from_records(sectionList) #,index='section_id')
     df_sections = df_sections.sort('section_id')
+
     # Save as a .csv file:
     df_sections.to_csv(sectionDatasetFilename)
 
@@ -137,19 +139,27 @@ def SaveListCSV(stringList,fileName):
 
 #-------------------------------------------------------------------------------
 
+# --1-- Retrieve and save section information:
 # Download and save all of the gene data to file:
 sections = GetAllSections()
-
 # Save section data to csv:
-save_sections_csv(sections)
+SaveSectionsToCSV(sections)
+# Saves to:
+# - sectionDatasetFilename
+# - geneInfoFilename
 
-# Get unique entrez IDs (better to get output from save_sections_csv, but whatever)
-geneEntrezList = sections_to_list(sections)
+# --2-- Get gene information:
+# Get unique entrez IDs
+geneEntrezList = SectionsToList(sections)
 entrezSet = set(geneEntrezList)
 geneEntrezList = list(entrezSet)
 geneEntrezList.sort()
 print "There are %u unique genes in section datasets" % len(entrezSet)
-SaveListCSV(list(entrezSet),entrezIDFilename)
+SaveListCSV(geneEntrezList,entrezIDFilename)
+
+# Saves to:
+# - entrezIDFilename
+
 
 # genes = GetAllGenes()
 # df = df.sort('entrez_id')

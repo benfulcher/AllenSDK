@@ -15,23 +15,36 @@ If anything is unclear or needs improvement, please send questions by [raising a
 This pipeline is based on code developed for [Fulcher and Fornito, _PNAS_ (2016)](https://doi.org/10.1073/pnas.1513302113), and used for [Fulcher et al., _PNAS_ (2019)](https://doi.org/10.1073/pnas.1814144116).
 If you find this code useful, consider citing these papers if relevant to your work, or you can cite this code directly using its [DOI](https://doi.org/10.5281/zenodo.3951756).
 
-## Getting a region-by-gene matrix
+## Constructing a brain region x gene matrix
 
-### Getting full gene information first
-This is kind of badly worked up, where you first need to get a full list of genes, by running `AllGenes.py`.
+### Retrieve full gene information
+You first need to get a full list of genes, by running `AllGenes.py`.
 
-This gives you generic information:
-* `geneInfo.csv`
-* `geneEntrezID.csv`
+This outputs you generic information about the genes:
+* `sectionDatasetInfo.csv` (all section data)
+* `geneInfo.csv` (gene information: acronym, entrez_id, gene_id, name)
+* `geneEntrezID.csv` (just the list of EntrezIDs)
 
-### Preparing inputs
+### Preparing inputs for a specific region x gene matrix
 
-The basic workflow is:
-1. Get all structure IDs using `WriteStructureInfo.py` (kind of cheat by doing this from Matlab, `WriteStructureIDs.m` -> `structIDs_Oh.csv` and `structInfo_Oh.csv`)
-2. Get all gene entrez IDs, e.g., `AllGenes.py` -> `allGenes.csv`
-3. Run `RetrieveGene.py` and retrieve the combinations from Allen API
+#### 1. Retrieve IDs for all brain regions, `structIDs` and `structInfo`
 
-Note that in `RetrieveGene.py`, three variables need to be set.
+Retrieve all structure IDs of interest directly by adapting `WriteStructureInfo.py` to retrieve a custom set of structures.
+
+If you already have structure IDs in Matlab, you can alternatively to this step using `WriteStructureIDs.m` -> `structIDs_Oh.csv` and `structInfo_Oh.csv`.
+
+#### 2. Retrieve gene entrez IDs
+
+Save a list of gene entrez IDs for the genes you're interested in.
+For all genes, you can use the `geneEntrezID.csv` file produced from `AllGenes.py` above.
+For a subset of genes, you can adapt something like `subsetGenes.py`.
+
+#### 3. Run retrieve the expression data from the Allen API
+
+Now you've defined the structures and genes you're interested in, you can run the queries to get all combinations of expression data (of brain regions and genes).
+This is done using `RetrieveGene.py`.
+
+Note that in `RetrieveGene.py`, three variables need to be set according to the files of structure IDs and entrez IDs saved in Steps 1 and 2 above.
 
 Input files:
 * `structIDSource`: name of the .csv file of Allen structure IDs
