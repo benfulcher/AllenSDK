@@ -5,8 +5,10 @@ fileName = struct();
 fileName.ID = 'structIDs_Oh.csv';
 fileName.info = 'structInfo_Oh.csv';
 
+% If you already have a Matlab file containing structure IDs, you can load it from here:
+% (e.g., 'AllenGeneDataset_19419.mat')
 fprintf(1,'Loading full gene data (NEW: FROM ALLEN SDK)...');
-dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+dataFile = 'AllenGeneDataset_19419.mat';
 load(dataFile,'structInfo');
 fprintf(1,' Done.\n');
 

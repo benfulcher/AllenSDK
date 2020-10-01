@@ -44,24 +44,26 @@ For a subset of genes, you can adapt something like `subsetGenes.py`.
 Now you've defined the structures and genes you're interested in, you can run the queries to get all combinations of expression data (of brain regions and genes).
 This is done using `RetrieveGene.py`.
 
-Note that in `RetrieveGene.py`, three variables need to be set according to the files of structure IDs and entrez IDs saved in Steps 1 and 2 above.
+Note that in `RetrieveGene.py`, variables need to be set.
 
-Input files:
-* `structIDSource`: name of the .csv file of Allen structure IDs
-* `entrezSource`: name of the .csv file of gene entrez IDs to retrieve
+First the input files need to match the IDs saved in Steps 1 and 2 above.
 
-### Preparing outputs
+___Input files___
+* `structIDSource`: name of the `.csv` file of Allen structure IDs
+* `entrezSource`: name of the `.csv` file of gene entrez IDs to retrieve
 
-Output files (specified filenames):
-* `structInfoFilename`: saves retrieved information for the structure IDs specified
-* `allDataFilename`: saves detailed expression information out to this file
+___Output filenames___
 
-Output files (generated filenames):
+__To set:__
+* `structInfoFilename`: saves retrieved information for the structure IDs specified.
+* `allDataFilename`: saves detailed expression information out to this file.
+
+__Generated:__
 * `expression_energy_AxB`: expression energy values for the A structures and B section datasets
 * `expression_density_AxB`: expression density values for the A structure and B section datasets
 * `dataSetIDs_Columns.csv`: dataset IDs representing each column in the above matrices
 
-## Importing output files into Matlab
+## Importing data into Matlab
 
 Then you can import the resulting data into Matlab as:
 ```matlab
@@ -79,6 +81,7 @@ In this function, you must specify the filenames to read in:
 Outputs a processed .mat file: `AllenGeneDataset_X.mat` containing information about X unique genes.
 
 ## Computing a structure mask
+
 Example pipeline:
 First generate `.csv` files for structure IDs and matching to structure info (for interpretation)
 E.g., for the Oh et al. 213-region parcellation:
