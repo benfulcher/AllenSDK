@@ -61,7 +61,7 @@ Output files (generated filenames):
 * `expression_density_AxB`: expression density values for the A structure and B section datasets
 * `dataSetIDs_Columns.csv`: dataset IDs representing each column in the above matrices
 
-### Importing python outputs into Matlab
+## Importing output files into Matlab
 
 Then you can import the resulting data into Matlab as:
 ```matlab

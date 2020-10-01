@@ -5,13 +5,24 @@ import numpy as np
 import time
 import csv # For saving string data to csv
 
+#-------------------------------------------------------------------------------
 # Globals:
+#-------------------------------------------------------------------------------
+# INPUT file names:
+structIDSource = 'structureIDs.csv' # 'layerIDs.csv' # 'structureIDs.csv'
+entrezSource = 'geneEntrezID.csv' # 'geneEntrezID.csv'
+
+# OUTPUT file names:
+structInfoFilename = 'structureInfo.csv' # structureInfo.csv
+allDataFilename = 'bigDataFrame.csv'
+
 #-------------------------------------------------------------------------------
 # graph_id = 1 is the "Mouse Brain Atlas"
 # (cf. http://help.brain-map.org/display/api/Atlas+Drawings+and+Ontologies)
 mouse_graph_id = 1
 mouse_product_id = 1
 json_file_name = 'unionizes.json'
+#-------------------------------------------------------------------------------
 
 def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced=False,writeOut=False):
     # Given genes and set of structures, retrieves expression data from Allen API
@@ -64,6 +75,7 @@ def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced=False,writeOut=
                 optionsString=optionsString,writeOut=writeOut)
 
     return expressionData
+#-------------------------------------------------------------------------------
 def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut=False):
     # Send a query to the Allen API, and assemble results
 
@@ -107,6 +119,7 @@ def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut
             print("Wrote to %s" % json_file_name)
 
     return rows
+#-------------------------------------------------------------------------------
 def unionizes_to_dataframe(unionizes):
     fdata = []
     for unionize in unionizes:
@@ -121,10 +134,12 @@ def unionizes_to_dataframe(unionizes):
             # 'gene_entrez': unionize['section_data_set']['genes'][0]['entrez_id'],
         })
     return pd.DataFrame.from_records(fdata)
+#-------------------------------------------------------------------------------
 def SaveListCSV(stringList,fileName):
     resultFile = open(fileName,'wb')
     wr = csv.writer(resultFile, dialect='excel')
     wr.writerow(stringList)
+#-------------------------------------------------------------------------------
 def GetStructureDetails(structureIDs,filterFields,graph_id=1):
     # Get structure info for structureIDs given from Allen API
     # (mouse brain atlas)
@@ -162,14 +177,7 @@ def GetStructureDetails(structureIDs,filterFields,graph_id=1):
     #         parentId = s['structure_id_path'][-2]
     #         structHash[parentId]['num_children'] += 1
 
-
-# INPUT file names:
-structIDSource = 'structIDs_palomero.csv' # 'layerIDs.csv' # 'structureIDs.csv'
-entrezSource = 'entrezIDs_palomero.csv' # 'geneEntrezID.csv'
-
-# OUTPUT file names:
-structInfoFilename = 'structureInfo_Palomero.csv' # structureInfo.csv
-allDataFilename = 'bigDataFrame_Palomero.csv'
+#-------------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------
 # Read in structure IDs from csv -> save detailed structure info to file
@@ -283,8 +291,8 @@ dataSetIDs.to_csv('structIDs_Rows.csv', index=False, header=False)
 dataSetIDs = pd.DataFrame(list(table.axes[1]))
 dataSetIDs.to_csv('dataSetIDs_Columns.csv', index=False, header=False)
 
-    # Summary to screen
-    # gdf = gb.agg({'data_set_id': pd.Series.nunique})
-    # print(gdf)
+# Summary to screen
+# gdf = gb.agg({'data_set_id': pd.Series.nunique})
+# print(gdf)
 
 # if __name__ == "__main__": main()
