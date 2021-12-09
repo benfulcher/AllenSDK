@@ -10,6 +10,13 @@ This repository contains code for:
 Requires Matlab and python.
 The [AllenSDK package](http://alleninstitute.github.io/AllenSDK/install.html) for python must be installed.
 
+Commands to install AllenSDK (As incompatible with newer versions)
+```
+conda create -n allensdk python=3.7
+conda activate allensdk
+pip install allensdk
+```
+
 If anything is unclear or needs improvement, please send questions by [raising an Issue](https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue) or [sending me an email](mailto:ben.d.fulcher@gmail.com).
 
 This pipeline is based on code developed for [Fulcher and Fornito, _PNAS_ (2016)](https://doi.org/10.1073/pnas.1513302113), and used for [Fulcher et al., _PNAS_ (2019)](https://doi.org/10.1073/pnas.1814144116).
