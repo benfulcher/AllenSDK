@@ -5,14 +5,11 @@ import numpy as np
 import time
 import csv # For saving string data to csv
 
-from joblib import Parallel, delayed
-import os
-
 #-------------------------------------------------------------------------------
 # Globals:
 #-------------------------------------------------------------------------------
 # INPUT file names:
-structIDSource = 'structIDs_all.csv' # 'layerIDs.csv' # 'structureIDs.csv'
+structIDSource = 'structureIDs.csv' # 'layerIDs.csv' # 'structureIDs.csv'
 entrezSource = 'geneEntrezID.csv' # 'geneEntrezID.csv'
 
 # OUTPUT file names:
@@ -27,7 +24,7 @@ mouse_product_id = 1
 json_file_name = 'unionizes.json'
 #-------------------------------------------------------------------------------
 
-def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced='medium',writeOut=False):
+def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced=False,writeOut=False):
     # Given genes and set of structures, retrieves expression data from Allen API
     # Can set geneEntrezID to empty to retrieve for all genes
     # Can set geneEntrezID to be a single number (array length 1) for a single gene
@@ -38,10 +35,7 @@ def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced='medium',writeO
     string_structureIDs = ','.join(str(sid) for sid in structureIDs)
 
     # Set defaults:
-    if doReduced == 'struc_gene_density':
-        print("Only retrieving a minimal subset of results from the queries")
-        optionsString = "[only$eq'structures.id,data_sets.idgenes.entrez_id,structure_unionizes.expression_density']"
-    elif doReduced=='medium':
+    if doReduced:
         print("Only retrieving a reduced subset of results from the queries")
         optionsString = "[only$eq'structures.id,data_sets.id,data_sets.plane_of_section_id,genes.entrez_id,structure_unionizes.expression_energy,structure_unionizes.expression_density']"
     else:
@@ -61,14 +55,14 @@ def download_mouse_unionizes(geneEntrezID,structureIDs,doReduced='medium',writeO
             ]
     elif len([geneEntrezID])==1:
         # Get for a single gene:
-        print(("Get for the single gene: entrez_id = %u" % geneEntrezID[0]))
+        print("Get for the single gene: entrez_id = %u" % geneEntrezID[0])
         criteria = [
             "structure[id$in%s][graph_id$eq%d]," % (string_structureIDs, mouse_graph_id),
             "section_data_set[failed$eqfalse](products[id$eq%d],genes[entrez_id$eq%d])" % (mouse_product_id, geneEntrezID[0])
             ]
     elif len(geneEntrezID)>1:
         # Get for multiple genes:
-        print(("Getting expression results for %u genes" % len(geneEntrezID)))
+        print("Getting expression results for %u genes" % len(geneEntrezID))
         string_geneEntrezIDs = ','.join(str(eid) for eid in geneEntrezIDs)
         criteria = [
             "structure[id$in%s][graph_id$eq%d]," % (string_structureIDs, mouse_graph_id),
@@ -90,34 +84,30 @@ def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut
 
     # Settings for retrieval
     rows = []
-    blockSize = 1000
+    blockSize = 2000
     done = False
     startRow = 0
     # for i in range(0, total_rows, blockSize):
 
     while not done:
-        print(("Row %d, attempting to retrieve %d rows..." % (startRow, blockSize)))
+        print("Row %d, attempting to retrieve %d rows..." % (startRow, blockSize))
 
         tot_rows = len(rows)
 
         # apiQueryPartial = partial(api.model_query,model=model,criteria=criteriaString,
                                     # startRow=startRow,num_rows=blockSize)
 
-        print(model, criteriaString, includeString, optionsString, startRow, blockSize)
         rows += api.model_query(model=model,
                                 criteria=criteriaString,
                                 include=includeString,
                                 options=optionsString,
                                 start_row=startRow,
                                 num_rows=blockSize)
-        print(rows)
-        raise Exception
-
 
         numRows = len(rows) - tot_rows # additional rows retrieved on running the query
         startRow += numRows
 
-        print(("%d rows retrieved." % numRows))
+        print("%d rows retrieved." % numRows)
 
         # Check if we're at the end of the road
         if numRows == 0 or numRows < blockSize:
@@ -126,7 +116,7 @@ def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut
         # Write out the results as they come in, if requested
         if writeOut:
             json_utilities.write(json_file_name, rows)
-            print(("Wrote to %s" % json_file_name))
+            print("Wrote to %s" % json_file_name)
 
     return rows
 #-------------------------------------------------------------------------------
@@ -163,7 +153,7 @@ def GetStructureDetails(structureIDs,filterFields,graph_id=1):
     structs = QueryAPI(model="Structure",criteriaString=("[id$in%s][graph_id$eq%u]" \
                                 % (string_structureIDs,graph_id))) # (Mouse Brain Atlas)
 
-    print(("%u mouse-brain structures retrieved!\n" % len(structs)))
+    print("%u mouse-brain structures retrieved!\n" % len(structs))
 
     # Filter to only certain fields, specified as filterFields:
     structsFilt = []
@@ -192,30 +182,16 @@ def GetStructureDetails(structureIDs,filterFields,graph_id=1):
 #---------------------------------------------------------------------------
 # Read in structure IDs from csv -> save detailed structure info to file
 #---------------------------------------------------------------------------
-structureIDs = np.genfromtxt(structIDSource,delimiter=',', dtype=np.int)
-print(("Retrieved %d structures from %s..." % (len(structureIDs),structIDSource)))
+structureIDs = np.genfromtxt(structIDSource,delimiter=',')
+print("Retrieved %d structures from %s..." % (len(structureIDs),structIDSource))
 # Get details of the structures:
 filterFields = ['id','name','acronym','color_hex_triplet']
-
-# parallel downloading through joblib.Parallel, alter num_jobs for more simultaneous downloads
-num_jobs = 6
-num_structures = len(structureIDs)
-
-def structure_details_wrapper(struc_ids):
-    return GetStructureDetails(struc_ids, filterFields, 1)
-struct_list = Parallel(n_jobs=num_jobs)(delayed(structure_details_wrapper)(sub_list)
-        for sub_list
-        in np.split(structureIDs, list(range(0,num_structures,num_structures//num_jobs))[1:-1]))
-
-structs = sum(struct_list, [])
-# structs = GetStructureDetails(structureIDs,filterFields,1)
+structs = GetStructureDetails(structureIDs,filterFields,1)
 # To dataframe:
 df_struct = pd.DataFrame.from_records(structs)
 # Save as a .csv file:
 df_struct.to_csv(structInfoFilename)
 
-
-'''
 #---------------------------------------------------------------------------
 # RETRIEVING GENES ONE AT A TIME
 #---------------------------------------------------------------------------
@@ -224,7 +200,7 @@ df_struct.to_csv(structInfoFilename)
 
 # Read in gene entrez IDs from csv:
 geneEntrezIDs = np.genfromtxt(entrezSource,delimiter=',')
-print(("Read in %d genes from %s..." % (len(geneEntrezIDs), entrezSource)))
+print("Read in %d genes from %s..." % (len(geneEntrezIDs), entrezSource))
 
 # geneEntrezIDs = np.concatenate((geneEntrezIDs[0:1],[20604.]),axis=0)
 unionizes = []
@@ -237,19 +213,18 @@ for ind, geneEntrezID in enumerate(geneEntrezIDs):
     # df = pd.concat([df,df_i])
     timeSoFar = time.time() - startTime
     timeRemaining = timeSoFar/(ind+1)*(len(geneEntrezIDs)-ind+1)/60
-    print(("We're at %d/%d, %f min remaining" % (ind+1,len(geneEntrezIDs),timeRemaining)))
+    print("We're at %d/%d, %f min remaining" % (ind+1,len(geneEntrezIDs),timeRemaining))
 totalTime = (time.time() - startTime)/60.
-print(("Took %f min total" % totalTime))
+print("Took %f min total" % totalTime)
 
 # Make a data frame of the datasets downloaded:
 df = unionizes_to_dataframe(unionizes)
 df = df.sort_values(by=['structure_id','data_set_id'])
 df.to_csv(allDataFilename)
-print(("Saved data frame to %s" % allDataFilename))
+print("Saved data frame to %s" % allDataFilename)
 print(df)
 
 # df = pd.read_csv(allDataFilename)
-'''
 
 #-------------------------------------------------------------------------------
 # RETRIEVING GENES ALL TOGETHER IN ONE QUERY
@@ -258,58 +233,44 @@ print(df)
 # back to the matching genes...? (25924 rows per structure...):
 # No need to write to a json file as you go (slows down)
 # Only retrieve the necessary fields (doReduced)
+# unionizes = download_mouse_unionizes([],structureIDs,doReduced=True,writeOut=False)
 
-# Read in gene entrez IDs from csv:
-geneEntrezIDs = np.genfromtxt(entrezSource,delimiter=',')
-print(("Read in %d genes from %s..." % (len(geneEntrezIDs), entrezSource)))
-
-if not os.file.exists(json_file_name):
-    # Parallelize download using num_jobs and num_structures from the previous parallelization
-    def download_mouse_unionizes_wrapper(struc_ids):
-        return download_mouse_unionizes([],struc_ids,doReduced='medium',writeOut=False)
-    unionizes = Parallel(n_jobs=num_jobs)(delayed(download_mouse_unionizes_wrapper)(sub_list)
-            for sub_list
-            in np.split(structureIDs, list(range(0,num_structures,num_structures//num_jobs))[1:-1]))
-    unionizes = sum(unionizes, [])
-
-    # unionizes = download_mouse_unionizes([],structureIDs,doReduced='medium',writeOut=False)
-
-    # Write the agglomerated datasets to file
-    json_utilities.write(json_file_name, unionizes)
-    print("Wrote %d unionizes to %s" % (len(unionizes),json_file_name))
 #-------------------------------------------------------------------------------
+# Write the agglomerated datasets to file
+# json_utilities.write(json_file_name, unionizes)
+# print("Wrote %d unionizes to %s" % (len(unionizes),json_file_name))
 
 # Read in previously-downloaded results:
-unionizes = json_utilities.read(json_file_name)
+# unionizes = json_utilities.read(json_file_name)
 
 # To dataframe and then filter to include only genes in our geneEntrezIDs list:
-dfFull = unionizes_to_dataframe(unionizes)
-dfFull.shape[0]
+# dfFull = unionizes_to_dataframe(unionizes)
+# dfFull.shape[0]
 # # Now we need to filter to include only genes in our geneEntrezIDs list:
 # # (actually this filtering is not necessary) -- potentially a nice check that we only retrieved
 # # entrez_ids corresponding to section datasets with expression (22,000)
-df = dfFull.copy()
-df = df[df['gene_entrez'].isin(geneEntrezIDs)]
-df.shape[0]
-len(geneEntrezIDs)
+# df = dfFull.copy()
+# df = df[df['gene_entrez'].isin(geneEntrezIDs)]
+# df.shape[0]
+# len(geneEntrezIDs)
 # # (so something like 3,000 duplicates?)
-df = df.sort(['structure_id','data_set_id'])
-df.tail
-df_filter = df.drop_duplicates()
-df['data_set_id']
+# df = df.sort(['structure_id','data_set_id'])
+# df.tail
+# df_filter = df.drop_duplicates()
+# df['data_set_id']
 
 # # Save out just the gene information:
 # dfGenes = df[]
 #
 # # Save data summary as a .csv file:
-csv_file_name = 'filteredDataFrame.csv'
-df.to_csv(csv_file_name)
+# csv_file_name = 'filteredDataFrame.csv'
+# df.to_csv(csv_file_name)
 
 # Compute the mean expression energy for each structure_id:
-gb = df.groupby(['gene_entrez','structure_id'])['expression_energy'].mean()
-print(gb)
+# gb = df.groupby(['gene_entrez','structure_id'])['expression_energy'].mean()
+# print(gb)
 
-gb.pivot(index="structure_id", columns="gene_entrez", values="expression_energy")
+# gb.pivot(index="structure_id", columns="gene_entrez", values="expression_energy")
 print("Writing expression energy and density matrices out")
 for expressionType in ['expression_energy','expression_density']:
     table = pd.pivot_table(df, values=expressionType, index="structure_id",
@@ -321,8 +282,8 @@ for expressionType in ['expression_energy','expression_density']:
     # Save mean expression energy to a .csv output file:
     fileName = ("%s_%ux%u.csv" % (expressionType, table.shape[0], table.shape[1]))
     table.to_csv(fileName,na_rep='NaN')
-    print(("Saved expression energy of %u datasets over %u structures to %s" \
-                    % (table.shape[1],table.shape[0],fileName)))
+    print("Saved expression energy of %u datasets over %u structures to %s" \
+                    % (table.shape[1],table.shape[0],fileName))
 
 # Need to also output the section dataset IDs (columns) and struct IDs (rows)
 dataSetIDs = pd.DataFrame(list(table.axes[0]))

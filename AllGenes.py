@@ -24,13 +24,13 @@ def QueryAPI(model,criteriaString,includeString="",optionsString="",writeOut=[])
     api = RmaApi()
     # Settings for retrieval
     rows = []
-    blockSize = 2000
+    blockSize = 5000
     done = False
     startRow = 0
     # for i in range(0, total_rows, blockSize):
 
     while not done:
-        print "Row %d, attempting to retrieve %d rows..." % (startRow, blockSize)
+        print("Row %d, attempting to retrieve %d rows..." % (startRow, blockSize))
 
         tot_rows = len(rows)
         if len(includeString)==0:
@@ -50,16 +50,16 @@ def QueryAPI(model,criteriaString,includeString="",optionsString="",writeOut=[])
         numRows = len(rows) - tot_rows # additional rows retrieved on running the query
         startRow += numRows
 
-        print "%d rows retrieved." % numRows
+        print("%d rows retrieved." % numRows)
 
         # Check if we're at the end of the road
         if numRows == 0 or numRows < blockSize:
             done = True
 
         # Write out the results as they come in, if requested
-        if isinstance(writeOut, basestring):
+        if isinstance(writeOut, str):
             json_utilities.write(json_file_name, rows)
-            print "Wrote to %s" % json_file_name
+            print("Wrote to %s" % json_file_name)
 
     return rows
 #-------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ def SaveSectionsToCSV(sections):
                 })
     # To dataframe:
     df_sections = pd.DataFrame.from_records(sectionList) #,index='section_id')
-    df_sections = df_sections.sort('section_id')
+    df_sections = df_sections.sort_values(by=['section_id'])
 
     # Save as a .csv file:
     df_sections.to_csv(sectionDatasetFilename)
@@ -123,19 +123,19 @@ def SaveSectionsToCSV(sections):
                 })
     # To dataframe:
     df_genes = pd.DataFrame.from_records(geneList) #,index='entrez_id')
-    df_genes = df_genes.sort('entrez_id')
+    df_genes = df_genes.sort_values(by=['entrez_id'])
     numGenesFull = df_genes.shape[0]
     df_genes = df_genes.drop_duplicates()
     numGenesFiltered = df_genes.shape[0]
-    print "Genes filtered from %u to %u" % (numGenesFull, numGenesFiltered)
+    print("Genes filtered from %u to %u" % (numGenesFull, numGenesFiltered))
     # Save as a .csv file:
     df_genes.to_csv(geneInfoFilename)
 #-------------------------------------------------------------------------------
 def SaveListCSV(stringList,fileName):
     # Outputs a csv from a given list of strings
-    resultFile = open(fileName,'wb')
-    wr = csv.writer(resultFile, dialect='excel')
-    wr.writerow(stringList)
+    with open(file=fileName, mode='w') as resultFile:
+        wr = csv.writer(resultFile, dialect='excel')
+        wr.writerow(stringList)
 
 #-------------------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ geneEntrezList = SectionsToList(sections)
 entrezSet = set(geneEntrezList)
 geneEntrezList = list(entrezSet)
 geneEntrezList.sort()
-print "There are %u unique genes in section datasets" % len(entrezSet)
+print("There are %u unique genes in section datasets" % len(entrezSet))
 SaveListCSV(geneEntrezList,entrezIDFilename)
 
 # Saves to:

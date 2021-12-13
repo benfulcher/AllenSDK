@@ -1,5 +1,7 @@
 # AllenSDK
 
+This is a python 3 ported version of [https://github.com/benfulcher/AllenSDK](https://github.com/benfulcher/AllenSDK), enhanced through some parallelism using `joblib` and others.
+
 [![DOI](https://zenodo.org/badge/104984017.svg)](https://zenodo.org/badge/latestdoi/104984017)
 [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/bendfulcher.svg?style=social&label=Follow%20%40bendfulcher)](https://twitter.com/bendfulcher)
 
