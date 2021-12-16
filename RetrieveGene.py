@@ -103,15 +103,13 @@ def QueryAPI(model,criteriaString,includeString=None,optionsString=None,writeOut
         # apiQueryPartial = partial(api.model_query,model=model,criteria=criteriaString,
                                     # startRow=startRow,num_rows=blockSize)
 
-        print(model, criteriaString, includeString, optionsString, startRow, blockSize)
+        # print(model, criteriaString, includeString, optionsString, startRow, blockSize)
         rows += api.model_query(model=model,
                                 criteria=criteriaString,
                                 include=includeString,
                                 options=optionsString,
                                 start_row=startRow,
                                 num_rows=blockSize)
-        print(rows)
-        raise Exception
 
 
         numRows = len(rows) - tot_rows # additional rows retrieved on running the query
@@ -139,9 +137,9 @@ def unionizes_to_dataframe(unionizes):
             'expression_density': unionize['expression_density'],
             'data_set_id': unionize['section_data_set']['id'],
             'plane_of_section_id': unionize['section_data_set']['plane_of_section_id'],
-            # 'gene_acronym': unionize['section_data_set']['genes'][0]['acronym'],
-            # 'gene_name': unionize['section_data_set']['genes'][0]['name'],
-            # 'gene_entrez': unionize['section_data_set']['genes'][0]['entrez_id'],
+            'gene_acronym': unionize['section_data_set']['genes'][0]['acronym'],
+            'gene_name': unionize['section_data_set']['genes'][0]['name'],
+            'gene_entrez': unionize['section_data_set']['genes'][0]['entrez_id'],
         })
     return pd.DataFrame.from_records(fdata)
 #-------------------------------------------------------------------------------
@@ -215,7 +213,6 @@ df_struct = pd.DataFrame.from_records(structs)
 df_struct.to_csv(structInfoFilename)
 
 
-'''
 #---------------------------------------------------------------------------
 # RETRIEVING GENES ONE AT A TIME
 #---------------------------------------------------------------------------
@@ -223,12 +220,14 @@ df_struct.to_csv(structInfoFilename)
 # to get all genes at once?
 
 # Read in gene entrez IDs from csv:
-geneEntrezIDs = np.genfromtxt(entrezSource,delimiter=',')
+geneEntrezIDs = np.genfromtxt(entrezSource,delimiter=',',dtype=int)
 print(("Read in %d genes from %s..." % (len(geneEntrezIDs), entrezSource)))
 
 # geneEntrezIDs = np.concatenate((geneEntrezIDs[0:1],[20604.]),axis=0)
 unionizes = []
 startTime = time.time()
+storage_path = './data/'
+'''
 for ind, geneEntrezID in enumerate(geneEntrezIDs):
     unionizes_gid = download_mouse_unionizes([geneEntrezID],structureIDs,
                                             doReduced=True,writeOut=False)
@@ -238,8 +237,26 @@ for ind, geneEntrezID in enumerate(geneEntrezIDs):
     timeSoFar = time.time() - startTime
     timeRemaining = timeSoFar/(ind+1)*(len(geneEntrezIDs)-ind+1)/60
     print(("We're at %d/%d, %f min remaining" % (ind+1,len(geneEntrezIDs),timeRemaining)))
+'''
+def download_unionizes_wrapper(i, gene_id):
+    try:
+        unionizes_gid = download_mouse_unionizes([gene_id],structureIDs, doReduced=True,writeOut=False)
+    except Exception:
+        file = 'missed_genes'
+        with open(file=file,mode='a') as f:
+            print(gene_id, file=f)
+    struc_df = unionizes_to_dataframe(unionizes_gid)
+    struc_df.to_csv(storage_path+str(gene_id)+'_structure_unionizes.csv')
+    print(f'{i} of {len(geneEntrezIDs)} done.')
+    return
+
+n_jobs = 6
+Parallel(n_jobs=n_jobs)(delayed(download_unionizes_wrapper)(i, geneEntrezID) for i, geneEntrezID in enumerate(geneEntrezIDs))
+
 totalTime = (time.time() - startTime)/60.
 print(("Took %f min total" % totalTime))
+
+raise Exception
 
 # Make a data frame of the datasets downloaded:
 df = unionizes_to_dataframe(unionizes)
@@ -249,7 +266,6 @@ print(("Saved data frame to %s" % allDataFilename))
 print(df)
 
 # df = pd.read_csv(allDataFilename)
-'''
 
 #-------------------------------------------------------------------------------
 # RETRIEVING GENES ALL TOGETHER IN ONE QUERY
@@ -259,6 +275,7 @@ print(df)
 # No need to write to a json file as you go (slows down)
 # Only retrieve the necessary fields (doReduced)
 
+'''
 # Read in gene entrez IDs from csv:
 geneEntrezIDs = np.genfromtxt(entrezSource,delimiter=',')
 print(("Read in %d genes from %s..." % (len(geneEntrezIDs), entrezSource)))
@@ -281,6 +298,7 @@ if not os.file.exists(json_file_name):
 
 # Read in previously-downloaded results:
 unionizes = json_utilities.read(json_file_name)
+'''
 
 # To dataframe and then filter to include only genes in our geneEntrezIDs list:
 dfFull = unionizes_to_dataframe(unionizes)
