@@ -50,12 +50,21 @@ def writePalomeroStructures(tree):
     palomeroStructs = tree.get_structures_by_id(theStructIDs)
     writeIDsAndInfo(palomeroStructs,'structIDs_palomero.csv','structInfo_palomero.csv')
 #-------------------------------------------------------------------------------
+def writeAllStructures(tree):
+    theStructIDs = [d['id'] for d in tree.nodes()]
+    theStructIDs = list(set(theStructIDs))
+    structs = tree.get_structures_by_id(theStructIDs)
+    writeIDsAndInfo(structs,'structIDs_all.csv','structInfo_all.csv')
+#-------------------------------------------------------------------------------
+
 
 tree = getFullStructureTree()
-writeWhat = 'palomero'
+writeWhat = 'all'
 if writeWhat=='palomero':
     writePalomeroStructures(tree)
 elif writeWhat=='cortical':
     writeCorticalStructures(tree)
 elif writeWhat=='layer':
     writeLayerStructures(tree)
+elif writeWhat=='all':
+    writeAllStructures(tree)

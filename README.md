@@ -1,5 +1,7 @@
 # AllenSDK
 
+This is a python 3 ported version of [https://github.com/benfulcher/AllenSDK](https://github.com/benfulcher/AllenSDK), enhanced through some parallelism using `joblib` and others.
+
 [![DOI](https://zenodo.org/badge/104984017.svg)](https://zenodo.org/badge/latestdoi/104984017)
 [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/bendfulcher.svg?style=social&label=Follow%20%40bendfulcher)](https://twitter.com/bendfulcher)
 
@@ -9,6 +11,13 @@ This repository contains code for:
 
 Requires Matlab and python.
 The [AllenSDK package](http://alleninstitute.github.io/AllenSDK/install.html) for python must be installed.
+
+Commands to install AllenSDK (As incompatible with newer versions)
+```
+conda create -n allensdk python=3.7
+conda activate allensdk
+pip install allensdk
+```
 
 If anything is unclear or needs improvement, please send questions by [raising an Issue](https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue) or [sending me an email](mailto:ben.d.fulcher@gmail.com).
 
